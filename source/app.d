@@ -4,7 +4,7 @@ import dsfml.system;
 
 import std.conv : to;
 import std.stdio : writeln;
-import std.random : uniform, unpredictableSeed;
+import std.random : Random, uniform, unpredictableSeed;
 
 int width;
 int height;
@@ -22,12 +22,14 @@ class Drop
 	Vector2f movespeed;
 	Vector2f len;
 	RectangleShape rect;
+	float start;
 	
 	this(int x)
 	{
 		//Set the position and normalize them by putting them above the screen
-		this.pos.x = x;
+		this.pos.x = uniform(0, width, rng);
 		this.pos.y = uniform(-1000, -500, rng);
+		this.start = this.pos.y;
 		
 		//Set the length to a random number of pixels between 1 and 25
 		this.len.y = uniform(1, 25, rng);
@@ -35,7 +37,7 @@ class Drop
 
 		//Set the movespeed based on how long it is.
 		//The smaller it is, the slower
-		this.movespeed.y = map(this.len.y, 5, 25, 5, 15);
+		this.movespeed.y = map(this.len.y, 1, 25, 15, 25);
 		
 		//Create the screen rect to display
 		this.rect = new RectangleShape();
@@ -51,7 +53,7 @@ class Drop
 	{
 		this.pos.y += this.movespeed.y;
 		if (this.pos.y > height)
-			this.pos.y = -30.0;
+			this.pos.y = uniform(-1000, -500, rng);
 		this.rect.position = this.pos;
 	}
 
@@ -73,13 +75,14 @@ void main()
 	//Create a new window and set the framerate to 60
 	RenderWindow window = new RenderWindow(VideoMode(width, height), "Rain");
 	window.setFramerateLimit(60);
+	window.setVerticalSyncEnabled(true);
 
 	//Create a new random class
 	rng = Random(unpredictableSeed);
 
 	//Create all the drops 10 spaces apart
 	Drop[] drops;
-	foreach (i; 0 .. width / 10)
+	foreach (i; 0 .. 5000)
 		drops ~= new Drop(i * 10);
 
 	while (window.isOpen())
